@@ -1,12 +1,4 @@
-/*
- * @Descripttion: 
- * @version: 
- * @Author: 苏君
- * @email: 1373842098@qq.com
- * @Date: 2022-10-13 13:57:22
- * @LastEditors: sj
- * @LastEditTime: 2022-10-20 13:35:43
- */
+
 
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import * as THREE from "three";
