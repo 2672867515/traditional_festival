@@ -323,7 +323,7 @@ export const Vr = (): ReactElement => {
     homeMesh.name = "homeMesh"
     scene.add(homeMesh);
 
-    // 添加一个圆形按钮，点击后跳转到其他房间场景
+    // 添加一个圆形按钮，点击后跳转到其他房间场景。
     planeGemetry = new THREE.CircleGeometry(1.2, 20);
     planeMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
     // const font = new THREE.TextGeometry('miaoshu ')
