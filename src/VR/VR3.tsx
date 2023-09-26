@@ -1,83 +1,73 @@
+import { Modal } from "antd";
+import React, { useState } from "react";
+import { useEffect } from "react";
 import * as THREE from "three";
 // 导入轨道控制器
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rebe加载器
-
+import LuckDraw from '../price/aaa.tsx'
 
 const Vr=()=>{
-// 1、创建场景
-const scene = new THREE.Scene();
-// 2、创建相机
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-// 设置相机位置
-camera.position.set(0, 0, 5);
-scene.add(camera);
-// // 设置cube纹理加载器
-// const cubeTextureLoader = new THREE.CubeTextureLoader();
-// const envMapTexture = cubeTextureLoader.load([
-//   "textures/environmentMaps/1/px.jpg",
-//   "textures/environmentMaps/1/nx.jpg",
-//   "textures/environmentMaps/1/py.jpg",
-//   "textures/environmentMaps/1/ny.jpg",
-//   "textures/environmentMaps/1/pz.jpg",
-//   "textures/environmentMaps/1/nz.jpg",
-// ]);
-// 给场景添加背景
-// scene.background = envMapTexture;
-// // 给场景所有的物体添加默认的环境贴图
-// scene.environment = envMapTexture;
+   // 1、创建场景
+   const scene = new THREE.Scene();
+   // 2、创建相机
+   const camera = new THREE.PerspectiveCamera(
+     75,
+     window.innerWidth / window.innerHeight,
+     0.1,
+     1000
+   );
+   // 设置相机位置
+   camera.position.set(0, 0, 10);
+   scene.add(camera);
+    // 初始化渲染器
+    const renderer = new THREE.WebGLRenderer();
+    // 创建轨道控制器
+    const controls = new OrbitControls(camera, renderer.domElement);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  useEffect(()=>{
+    init()
+    render()
+  },[])
+  const init=()=>{
+    // 加载hdr环境图
+    const rgbeLoader = new RGBELoader();
+    //资源较大，使用异步加载
+    rgbeLoader.loadAsync("pic/G_Anime_2.hdr").then((texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+    //将加载的材质texture设置给背景和环境
+      scene.background = texture;
+      scene.environment = texture;
 
-// 加载hdr环境图
-const rgbeLoader = new RGBELoader();
-//资源较大，使用异步加载
-rgbeLoader.loadAsync("pic/G_Anime_2.hdr").then((texture) => {
-  texture.mapping = THREE.EquirectangularReflectionMapping;
-//将加载的材质texture设置给背景和环境
-  scene.background = texture;
-  scene.environment = texture;
-});
+    // 灯光
+    // 环境光
+    const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+    scene.add(light);
+    //直线光源
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
 
-
-// 灯光
-// 环境光
-const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
-scene.add(light);
-//直线光源
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight.position.set(10, 10, 10);
-scene.add(directionalLight);
-// 初始化渲染器
-const renderer = new THREE.WebGLRenderer();
-// 设置渲染的尺寸大小
-renderer.setSize(window.innerWidth, window.innerHeight);
-// console.log(renderer);
-// 将webgl渲染的canvas内容添加到body
-document.body.appendChild(renderer.domElement);
-// // 使用渲染器，通过相机将场景渲染进来
-// renderer.render(scene, camera);
-// 创建轨道控制器
-const controls = new OrbitControls(camera, renderer.domElement);
-// 设置控制器阻尼，让控制器更有真实效果,必须在动画循环里调用.update()。
-controls.enableDamping = true;
-// 添加坐标轴辅助器
-// const axesHelper = new THREE.AxesHelper(5);
-// scene.add(axesHelper);
-// 设置时钟
-const clock = new THREE.Clock();
-function render() {
+    // 设置渲染的尺寸大小
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    // 将webgl渲染的canvas内容渲染至threeDemo
+    document.getElementById("threeDemo")!.appendChild(renderer.domElement);
+    // // 使用渲染器，通过相机将场景渲染进来
+    renderer.render(scene, camera);
+    // 设置控制器阻尼，让控制器更有真实效果,必须在动画循环里调用.update()。
+    controls.enableDamping = true;
+    });
+  }
+const render=()=>{
+  // 轨道控制器更新(通常不用显式调用，他自己会捕捉鼠标拖动触发更新)
   controls.update();
+  // 重新渲染
   renderer.render(scene, camera);
-  //   渲染下一帧的时候就会调用render函数
-  requestAnimationFrame(render);
+  // 每帧重新走render渲染
+  requestAnimationFrame(render)
 }
-render();
-// 监听画面变化，更新渲染画面
+// 监听画面变化，更新渲染画面，响应式
 window.addEventListener("resize", () => {
   //   console.log("画面变化了");
   // 更新摄像头
@@ -89,6 +79,19 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   //   设置渲染器的像素比
   renderer.setPixelRatio(window.devicePixelRatio);
-});
+  });
+  return (
+    <>
+      <div id="threeDemo" style={{position: "absolute"}} />
+      <Modal title="Basic Modal" visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <LuckDraw />
+      </Modal>
+      <div className="a" onClick={()=>setIsModalOpen(true)} style={{position:"absolute"}} >asasas</div>
+    </>
+
+  )
 }
 export  {Vr}
