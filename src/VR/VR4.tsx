@@ -355,13 +355,7 @@ export const Vr = (): ReactElement => {
         <div className={styles.info}>
           <p> 鼠标左键白圈跳转，右键删除</p>
           <p> 当前房间为{currentHome}</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
-          <p> 描述文案</p>
+
         </div>
       </div>
       {/* 操作 */}
