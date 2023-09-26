@@ -1,13 +1,13 @@
 import React from 'react'
-import './index.css'
-const LuckDraw=()=>{
+import './index.less'
+const Luck=()=>{
     return(
         <>
-        <div className="a">11
+        <div className="aa">11
             <div className="b">23</div>
         </div>
 
         </>
     )
 }
-export default LuckDraw
+export default Luck

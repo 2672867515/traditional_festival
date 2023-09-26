@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rebe加载器
-import LuckDraw from '../price/aaa.tsx'
+import Luck from '../praise/index.tsx'
 
 const Vr=()=>{
    // 1、创建场景
@@ -84,12 +84,9 @@ window.addEventListener("resize", () => {
     <>
       <div id="threeDemo" style={{position: "absolute"}} />
       <Modal title="Basic Modal" visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <LuckDraw />
+        <Luck />
       </Modal>
-      <div className="a" onClick={()=>setIsModalOpen(true)} style={{position:"absolute"}} >asasas</div>
+      <div onClick={()=>setIsModalOpen(true)} style={{position:"absolute"}} >asasas</div>
     </>
 
   )
