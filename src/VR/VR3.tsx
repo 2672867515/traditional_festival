@@ -83,7 +83,7 @@ window.addEventListener("resize", () => {
   return (
     <>
       <div id="threeDemo" style={{position: "absolute"}} />
-      <Modal title="Basic Modal" visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
+      <Modal visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
         <Luck />
       </Modal>
       <div onClick={()=>setIsModalOpen(true)} style={{position:"absolute"}} >asasas</div>
