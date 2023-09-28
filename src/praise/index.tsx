@@ -23,7 +23,7 @@ const Luck=()=>{
             choose:false
         },
         {
-            id:5,
+            id:'start',
             pic:'',
             choose:false
         },
@@ -49,36 +49,69 @@ const Luck=()=>{
         }
     ])
     const [sort,setSort]=useState([1,2,3,6,9,8,7,4])
-    const start=(id)=>{
-        if(id===5){
-            let a=1
-            return ()=>{
-                setInterval(() => {
-                    if(a>8)
-                    {
-                        a=1
-                    }
-                    
-                    const newdata=   {
-                        id:a,
-                        pic:'',
-                        choose:true
-                    }
-                    const newblock=[...block,newdata]
-                    setBlock(newblock)
-console.log(a);
-
-                    a++
-                }, 1000);
+    const [play,setPlay]=useState(false)
+    const [position,setPosition]=useState(0)
+    const [time,setTime]=useState(1000)
+    const [timer,setTimer]=useState<any>('')
+    const active=(i)=>{
+        const newBlock= block.map((item)=>{
+            if(item.id=== sort[i]){
+                item.choose=true
+                return item
             }
-          
+            else{
+                item.choose=false
+                return item
+            }
+         
+        })  
+        setBlock(newBlock)
+    }
+    const stop=()=>{ 
+        if(time<0)        
+        clearInterval(timer)
+        console.log(position);
+    }
+
+    const start=(id)=>{
+        
+        if(id==='start'&&!play){
+            let i=0
+            let time=1000
+            setPlay(true)
+            const cir= ()=>{
+                setTimer( setInterval(() => {
+                    if(i>7)
+                    {
+                        i=0
+                        setPosition(0)
+                    }
+                    active(i)
+                    setPosition(i)
+                    i++
+                   time-=100
+                   setTime(time)
+                   if(time<0){
+                    stop()
+                   }
+                 
+                }, 200))
+             
+                
+            }
+          cir()
         }
+        if(id==='start'&&play){
+            setPlay(false)
+           stop()
+        }
+        
     }
     return(
         <>
         <div className="mainBox">
         {/* 'item-'+`${sort[index]}`+'active' */}
-        {block.map((item,index)=>  <div className={item.choose?'active':'def'} key={item.id} onClick={()=>start(item.id)()}>{block[index].id}</div>)}
+        {block.map((item,index)=>  <div className={item.choose?'active':'def'} key={item.id} onClick={()=>start(item.id)}>{block[index].id}</div>)}
         </div>
 
         </>

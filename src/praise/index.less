@@ -1,7 +1,6 @@
 .mainBox{
   width: 400px;
   height: 400px;
-  background-color: antiquewhite;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -11,10 +10,13 @@
     margin-top: 1%;
     color: chocolate;
     background-color: aqua;
+    border-radius: 10px
   }
   .active{
     .def;
     color: rgb(30, 210, 75);
     background-color: rgb(244, 65, 52);
+    transform: scale(1.05);
+    transition: 100ms;
   }
 }
