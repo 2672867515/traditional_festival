@@ -2,12 +2,12 @@ import { Modal } from "antd";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // 导入轨道控制器
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rebe加载器
 import Luck from '../praise/index.tsx'
-
 const Vr=()=>{
    // 1、创建场景
    const scene = new THREE.Scene();
@@ -30,6 +30,39 @@ const Vr=()=>{
     init()
     render()
   },[])
+  // 造球
+  const  createBox=(pos, radius, color,name)=> {
+    const geometry = new THREE.IcosahedronBufferGeometry( radius, 10 );
+    const object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({color: 0x808080,transparent: false, side: THREE.DoubleSide }) );
+    object.name = name
+    object.material.color.r = color[0] / 255;
+    object.material.color.g = color[1] / 255;
+    object.material.color.b = color[2] / 255;
+    object.material.opacity = 1;
+    object.position.x = pos.x;
+    object.position.y = pos.y;
+    object.position.z = pos.z;
+    object.shapeType = 'ball';
+    return object;
+  }
+  const ball1 = createBox({x:5,y:5,z:3},  3, [25,100,50],"ball1");
+  let ball2 = createBox({x:3,y:5,z:5},  3, [125,10,90],"ball2");
+  let ball3 = createBox({x:3,y:5,z:7},  3, [50,60,210],"ball3");
+  // 使用GLTFLoader加载模型
+const loader = new GLTFLoader();
+loader.load('model/judy.glb', (gltf) => {
+    // 从加载完成的gltf对象中获取模型网格
+    const modelMesh = gltf.scene.children[0];
+    modelMesh.name="Judy"
+    // 设置模型的位置、缩放、旋转等属性
+    modelMesh.position.set(10, 2, 12);
+    // modelMesh.scale.set(0.1, 0.1, 0.1);
+    // modelMesh.rotation.set(0, Math.PI / 2, 0);
+
+    // 将模型网格添加到场景中
+    scene.add(modelMesh);
+});
+
   const init=()=>{
     // 加载hdr环境图
     const rgbeLoader = new RGBELoader();
@@ -57,16 +90,121 @@ const Vr=()=>{
     renderer.render(scene, camera);
     // 设置控制器阻尼，让控制器更有真实效果,必须在动画循环里调用.update()。
     controls.enableDamping = true;
-    });
+
+    scene.add(ball1);
+    scene.add(ball2);
+    scene.add(ball3);
+  });
   }
-const render=()=>{
-  // 轨道控制器更新(通常不用显式调用，他自己会捕捉鼠标拖动触发更新)
-  controls.update();
-  // 重新渲染
-  renderer.render(scene, camera);
-  // 每帧重新走render渲染
-  requestAnimationFrame(render)
+  const render=()=>{
+    // 使场景中的物体进行旋转
+    scene.rotation.y += 0.0003;
+    // 轨道控制器更新(通常不用显式调用，他自己会捕捉鼠标拖动触发更新)
+    controls.update();
+    // 重新渲染
+    renderer.render(scene, camera);
+    // 每帧重新走render渲染
+    requestAnimationFrame(render)
+  }
+    // 使用射线（ray）来代表从摄像机（或其他点）发出的一条线。
+  // Raycaster 允许我们检测这条射线与场景中的物体是否相交
+  // 并且可以获取到交点的信息。
+  // 创建一个Raycaster对象
+  const raycaster = new THREE.Raycaster();
+
+// 初始化拖拽变量
+let isDragging = false;
+let selectedObject = null;
+let offset = new THREE.Vector3();
+
+// 在鼠标按下时触发
+function onMouseDown(event) {
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
+  
+  // 从相机发出一条射线，经过鼠标位置
+  raycaster.setFromCamera(mouse, camera);
+
+  // 检测射线与场景中的物体相交
+  const intersects = raycaster.intersectObjects(scene.children);
+
+  // 如果有相交的物体，选择第一个相交的物体进行拖拽
+  if (intersects.length > 0) {
+    isDragging = true;
+    selectedObject = intersects[0].object;
+
+    // 计算选中点与物体中心的偏移
+    const intersectionPoint = intersects[0].point;
+    offset.copy(intersectionPoint).sub(selectedObject.position);
+  }
 }
+
+// 在鼠标移动时触发
+function onMouseMove(event) {
+  if (isDragging) {
+    const mouse = new THREE.Vector2(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+    );
+
+    // 从相机发出一条射线，经过鼠标位置
+    raycaster.setFromCamera(mouse, camera);
+
+    // 计算射线与平面的交点
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, intersection);
+
+    // 移动选中的物体到交点位置
+    selectedObject.position.copy(intersection.sub(offset));
+  }
+}
+
+// 在鼠标抬起时触发
+function onMouseUp() {
+  isDragging = false;
+  selectedObject = null;
+}
+
+// 添加鼠标事件监听器
+window.addEventListener("mousedown", onMouseDown, false);
+window.addEventListener("mousemove", onMouseMove, false);
+window.addEventListener("mouseup", onMouseUp, false);
+// 鼠标点击事件
+function onMouseClick(event) {
+  // 根据屏幕坐标计算鼠标点击位置
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  // 从相机发出一条射线，经过鼠标位置
+  raycaster.setFromCamera(mouse, camera);
+  // 检查射线和对象的相交情况
+  const intersects = raycaster.intersectObjects(scene.children);
+
+  // 如果有相交的对象
+  if (intersects.length > 0) {
+    const clickedObject = intersects[0].object;
+
+    // 检查被点击的对象的名称
+    if (clickedObject.name === "ball1") {
+      // 这里执行与对象交互相关的操作
+      setIsModalOpen(true)
+    }
+    if (clickedObject.name === "ball2") {
+      // 这里执行与对象交互相关的操作
+      const r=Math.random()*255
+      const g=Math.random()*255
+      const b=Math.random()*255
+      scene.remove(ball2);
+      ball2 = createBox({x:3,y:5,z:5},  3, [r,g,b],"ball2");
+      scene.add(ball2)
+    }
+  }
+}
+// 监听鼠标点击事件
+window.addEventListener("click", onMouseClick, false);
 // 监听画面变化，更新渲染画面，响应式
 window.addEventListener("resize", () => {
   //   console.log("画面变化了");
@@ -86,7 +224,6 @@ window.addEventListener("resize", () => {
       <Modal visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
         <Luck />
       </Modal>
-      <div onClick={()=>setIsModalOpen(true)} style={{position:"absolute"}} >asasas</div>
     </>
 
   )
