@@ -48,20 +48,6 @@ const Vr=()=>{
   const ball1 = createBox({x:5,y:5,z:3},  3, [25,100,50],"ball1");
   let ball2 = createBox({x:3,y:5,z:5},  3, [125,10,90],"ball2");
   let ball3 = createBox({x:3,y:5,z:7},  3, [50,60,210],"ball3");
-  // 使用GLTFLoader加载模型
-const loader = new GLTFLoader();
-loader.load('model/judy.glb', (gltf) => {
-    // 从加载完成的gltf对象中获取模型网格
-    const modelMesh = gltf.scene.children[0];
-    modelMesh.name="Judy"
-    // 设置模型的位置、缩放、旋转等属性
-    modelMesh.position.set(10, 2, 12);
-    // modelMesh.scale.set(0.1, 0.1, 0.1);
-    // modelMesh.rotation.set(0, Math.PI / 2, 0);
-
-    // 将模型网格添加到场景中
-    scene.add(modelMesh);
-});
 
   const init=()=>{
     // 加载hdr环境图
@@ -106,16 +92,34 @@ loader.load('model/judy.glb', (gltf) => {
     // 每帧重新走render渲染
     requestAnimationFrame(render)
   }
-    // 使用射线（ray）来代表从摄像机（或其他点）发出的一条线。
+  // 使用射线（ray）来代表从摄像机（或其他点）发出的一条线。
   // Raycaster 允许我们检测这条射线与场景中的物体是否相交
   // 并且可以获取到交点的信息。
   // 创建一个Raycaster对象
   const raycaster = new THREE.Raycaster();
 
-// 初始化拖拽变量
-let isDragging = false;
-let selectedObject = null;
-let offset = new THREE.Vector3();
+  // 初始化拖拽变量
+  let isDragging = false;
+  let selectedObject = null;
+  let offset = new THREE.Vector3();
+
+  // 使用GLTFLoader加载模型
+  const loader = new GLTFLoader();
+  loader.load('model/judy.glb', (gltf) => {
+      // 从加载完成的gltf对象中获取模型网格
+      const modelMesh = gltf.scene.children[0];
+      modelMesh.name="Judy"
+      // console.log(gltf.scene.children[0]);
+      // 设置模型的位置、缩放、旋转等属性
+      modelMesh.position.set(10, 2, 12);
+      // modelMesh.scale.set(0.1, 0.1, 0.1);
+      // modelMesh.rotation.set(0, Math.PI / 2, 0);
+
+      // 将模型网格添加到场景中
+      scene.add(modelMesh);
+      console.log(scene.children);
+      
+  });
 
 // 在鼠标按下时触发
 function onMouseDown(event) {
@@ -186,11 +190,17 @@ function onMouseClick(event) {
   // 如果有相交的对象
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
+    console.log(intersects);
 
     // 检查被点击的对象的名称
     if (clickedObject.name === "ball1") {
       // 这里执行与对象交互相关的操作
       setIsModalOpen(true)
+    }
+    if (clickedObject.name === "Judy") {
+      // 这里执行与对象交互相关的操作
+      console.log(1111);
+      
     }
     if (clickedObject.name === "ball2") {
       // 这里执行与对象交互相关的操作
