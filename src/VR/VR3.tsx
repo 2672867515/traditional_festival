@@ -27,6 +27,9 @@ const Vr=()=>{
     const renderer = new THREE.WebGLRenderer();
     // 创建轨道控制器
     const controls = new OrbitControls(camera, renderer.domElement);
+    // 加载hdr环境图
+    const rgbeLoader = new RGBELoader();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEnv,setCurrentEnv]=useState(0)
     const [envArr, setEnvArr] = useState([
@@ -43,7 +46,8 @@ const Vr=()=>{
   },[])
   useEffect(()=>{
     loadEnv(envArr[currentEnv])
-    console.log(1111);
+    init()
+    render()
     
   },[currentEnv])
   // 造球
@@ -67,8 +71,10 @@ const Vr=()=>{
 
   // 加载环境
   const loadEnv=(url)=>{
-    // 加载hdr环境图
-    const rgbeLoader = new RGBELoader();
+    // 删除原有的场景
+    if(document.getElementById("threeDemo").firstChild){
+      document.getElementById("threeDemo")!.removeChild( document.getElementById("threeDemo").firstChild)
+    }
     //资源较大，使用异步加载
     rgbeLoader.loadAsync(url).then((texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -79,7 +85,7 @@ const Vr=()=>{
     renderer.setSize(window.innerWidth, window.innerHeight);
     // 将webgl渲染的canvas内容渲染至threeDemo
     document.getElementById("threeDemo")!.appendChild(renderer.domElement);
-    // // 使用渲染器，通过相机将场景渲染进来
+    //  使用渲染器，通过相机将场景渲染进来
     renderer.render(scene, camera);
     // 设置控制器阻尼，让控制器更有真实效果,必须在动画循环里调用.update()。
     controls.enableDamping = true;
@@ -170,10 +176,12 @@ const Vr=()=>{
   const changeEnv=()=>{
     if(currentEnv===5){
       setCurrentEnv(0)
+      // loadEnv(envArr[0])
     }
     else{
       let current=currentEnv+1
       setCurrentEnv(current)
+      // loadEnv(envArr[current])
     }
   }
 // 在鼠标按下时触发
