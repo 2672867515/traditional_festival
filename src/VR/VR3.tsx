@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // 导入轨道控制器
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rebe加载器
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rgbe加载器
 import Luck from '../praise/index.tsx'
 import './index.module.less'
 
@@ -43,6 +43,8 @@ const Vr=()=>{
   },[])
   useEffect(()=>{
     loadEnv(envArr[currentEnv])
+    console.log(1111);
+    
   },[currentEnv])
   // 造球
   const  createBox=(pos, radius, color,name)=> {
@@ -63,6 +65,7 @@ const Vr=()=>{
   let ball2 = createBox({x:3,y:15,z:5},  3, [125,10,90],"ball2");
   let ball3 = createBox({x:3,y:15,z:7},  3, [50,60,210],"ball3");
 
+  // 加载环境
   const loadEnv=(url)=>{
     // 加载hdr环境图
     const rgbeLoader = new RGBELoader();
@@ -84,9 +87,9 @@ const Vr=()=>{
   });
   }
   const init=()=>{
+    // 加载环境
     loadEnv(envArr[currentEnv])
-    // 灯光
-    // 环境光
+    // 灯光 环境光
     const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
     scene.add(light);
     //直线光源
@@ -169,61 +172,60 @@ const Vr=()=>{
       setCurrentEnv(0)
     }
     else{
-      let current=currentEnv
-      setCurrentEnv(current++)
+      let current=currentEnv+1
+      setCurrentEnv(current)
     }
-    console.log(111);
   }
 // 在鼠标按下时触发
-function onMouseDown(event) {
-  const mouse = new THREE.Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
+// function onMouseDown(event) {
+//   const mouse = new THREE.Vector2(
+//     (event.clientX / window.innerWidth) * 2 - 1,
+//     -(event.clientY / window.innerHeight) * 2 + 1
+//   );
   
-  // 从相机发出一条射线，经过鼠标位置
-  raycaster.setFromCamera(mouse, camera);
+//   // 从相机发出一条射线，经过鼠标位置
+//   raycaster.setFromCamera(mouse, camera);
 
-  // 检测射线与场景中的物体相交
-  const intersects = raycaster.intersectObjects(scene.children);
+//   // 检测射线与场景中的物体相交
+//   const intersects = raycaster.intersectObjects(scene.children);
 
-  // 如果有相交的物体，选择第一个相交的物体进行拖拽
-  if (intersects.length > 0) {
-    isDragging = true;
-    selectedObject = intersects[0].object;
+//   // 如果有相交的物体，选择第一个相交的物体进行拖拽
+//   if (intersects.length > 0) {
+//     isDragging = true;
+//     selectedObject = intersects[0].object;
 
-    // 计算选中点与物体中心的偏移
-    const intersectionPoint = intersects[0].point;
-    offset.copy(intersectionPoint).sub(selectedObject.position);
-  }
-}
+//     // 计算选中点与物体中心的偏移
+//     const intersectionPoint = intersects[0].point;
+//     offset.copy(intersectionPoint).sub(selectedObject.position);
+//   }
+// }
 
 // 在鼠标移动时触发
-function onMouseMove(event) {
-  if (isDragging) {
-    const mouse = new THREE.Vector2(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1
-    );
+// function onMouseMove(event) {
+//   if (isDragging) {
+//     const mouse = new THREE.Vector2(
+//       (event.clientX / window.innerWidth) * 2 - 1,
+//       -(event.clientY / window.innerHeight) * 2 + 1
+//     );
 
-    // 从相机发出一条射线，经过鼠标位置
-    raycaster.setFromCamera(mouse, camera);
+//     // 从相机发出一条射线，经过鼠标位置
+//     raycaster.setFromCamera(mouse, camera);
 
-    // 计算射线与平面的交点
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-    const intersection = new THREE.Vector3();
-    raycaster.ray.intersectPlane(plane, intersection);
+//     // 计算射线与平面的交点
+//     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+//     const intersection = new THREE.Vector3();
+//     raycaster.ray.intersectPlane(plane, intersection);
 
-    // 移动选中的物体到交点位置
-    selectedObject.position.copy(intersection.sub(offset));
-  }
-}
+//     // 移动选中的物体到交点位置
+//     selectedObject.position.copy(intersection.sub(offset));
+//   }
+// }
 
 // 在鼠标抬起时触发
-function onMouseUp() {
-  isDragging = false;
-  selectedObject = null;
-}
+// function onMouseUp() {
+//   isDragging = false;
+//   selectedObject = null;
+// }
 
 // 添加鼠标事件监听器
 // window.addEventListener("mousedown", onMouseDown, false);
