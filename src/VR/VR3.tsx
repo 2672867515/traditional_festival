@@ -8,6 +8,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rebe加载器
 import Luck from '../praise/index.tsx'
+import './index.module.less'
+
 const Vr=()=>{
    // 1、创建场景
    const scene = new THREE.Scene();
@@ -19,17 +21,29 @@ const Vr=()=>{
      1000
    );
    // 设置相机位置
-   camera.position.set(0, 0, 10);
+   camera.position.set(0, 20, 30);
    scene.add(camera);
     // 初始化渲染器
     const renderer = new THREE.WebGLRenderer();
     // 创建轨道控制器
     const controls = new OrbitControls(camera, renderer.domElement);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentEnv,setCurrentEnv]=useState(0)
+    const [envArr, setEnvArr] = useState([
+      "pic/G_Anime_2.hdr",
+      "pic/G_Anime_3.hdr",
+      "pic/G_Anime_4.hdr",
+      "pic/G_Anime_5.hdr",
+      "pic/G_Anime_11.hdr",
+      "pic/G_Anime_12.hdr"
+  ]);
   useEffect(()=>{
     init()
     render()
   },[])
+  useEffect(()=>{
+    loadEnv(envArr[currentEnv])
+  },[currentEnv])
   // 造球
   const  createBox=(pos, radius, color,name)=> {
     const geometry = new THREE.IcosahedronBufferGeometry( radius, 10 );
@@ -45,29 +59,19 @@ const Vr=()=>{
     object.shapeType = 'ball';
     return object;
   }
-  const ball1 = createBox({x:5,y:5,z:3},  3, [25,100,50],"ball1");
-  let ball2 = createBox({x:3,y:5,z:5},  3, [125,10,90],"ball2");
-  let ball3 = createBox({x:3,y:5,z:7},  3, [50,60,210],"ball3");
+  const ball1 = createBox({x:5,y:15,z:3},  3, [25,100,50],"ball1");
+  let ball2 = createBox({x:3,y:15,z:5},  3, [125,10,90],"ball2");
+  let ball3 = createBox({x:3,y:15,z:7},  3, [50,60,210],"ball3");
 
-  const init=()=>{
+  const loadEnv=(url)=>{
     // 加载hdr环境图
     const rgbeLoader = new RGBELoader();
     //资源较大，使用异步加载
-    rgbeLoader.loadAsync("pic/G_Anime_2.hdr").then((texture) => {
+    rgbeLoader.loadAsync(url).then((texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping;
     //将加载的材质texture设置给背景和环境
       scene.background = texture;
       scene.environment = texture;
-
-    // 灯光
-    // 环境光
-    const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
-    scene.add(light);
-    //直线光源
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(10, 10, 10);
-    scene.add(directionalLight);
-
     // 设置渲染的尺寸大小
     renderer.setSize(window.innerWidth, window.innerHeight);
     // 将webgl渲染的canvas内容渲染至threeDemo
@@ -77,14 +81,27 @@ const Vr=()=>{
     // 设置控制器阻尼，让控制器更有真实效果,必须在动画循环里调用.update()。
     controls.enableDamping = true;
 
+  });
+  }
+  const init=()=>{
+    loadEnv(envArr[currentEnv])
+    // 灯光
+    // 环境光
+    const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+    scene.add(light);
+    //直线光源
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
+    
     scene.add(ball1);
     scene.add(ball2);
     scene.add(ball3);
-  });
   }
   const render=()=>{
     // 使场景中的物体进行旋转
     scene.rotation.y += 0.0003;
+    camera.position.x+=0.005;
     // 轨道控制器更新(通常不用显式调用，他自己会捕捉鼠标拖动触发更新)
     controls.update();
     // 重新渲染
@@ -99,28 +116,64 @@ const Vr=()=>{
   const raycaster = new THREE.Raycaster();
 
   // 初始化拖拽变量
-  let isDragging = false;
-  let selectedObject = null;
-  let offset = new THREE.Vector3();
+  // let isDragging = false;
+  // let selectedObject = null;
+  // let offset = new THREE.Vector3();
 
   // 使用GLTFLoader加载模型
   const loader = new GLTFLoader();
-  loader.load('model/judy.glb', (gltf) => {
-      // 从加载完成的gltf对象中获取模型网格
-      const modelMesh = gltf.scene.children[0];
+  loader.load('model/judy.glb', (glb) => {
+      // 从加载完成的glb对象中获取模型网格
+      const modelMesh = glb.scene.children[0];
       modelMesh.name="Judy"
-      // console.log(gltf.scene.children[0]);
+      // console.log(glb.scene.children[0]);
       // 设置模型的位置、缩放、旋转等属性
-      modelMesh.position.set(10, 2, 12);
-      // modelMesh.scale.set(0.1, 0.1, 0.1);
+      modelMesh.position.set(10, 2, 15);
+      modelMesh.scale.set(2,2,2);
       // modelMesh.rotation.set(0, Math.PI / 2, 0);
 
       // 将模型网格添加到场景中
       scene.add(modelMesh);
-      console.log(scene.children);
       
   });
+  loader.load('model/car/scene.gltf', (gltf) => {
+    // 从加载完成的gltf对象中获取模型网格
+      const modelMesh = gltf.scene.children[0];
+      modelMesh.name="car"
+      // console.log(gltf.scene.children[0]);
+      // 设置模型的位置、缩放、旋转等属性
+      modelMesh.position.set(20, 2, 15);
+      modelMesh.scale.set(2, 2, 2);
+      // modelMesh.rotation.set(0, Math.PI / 2, 0);
 
+      // 将模型网格添加到场景中
+      scene.add(modelMesh);
+      
+  });
+  loader.load('model/dragon/scene.gltf', (gltf) => {
+    // 从加载完成的gltf对象中获取模型网格
+      const modelMesh = gltf.scene.children[0];
+      modelMesh.name="dragon"
+      // console.log(gltf.scene.children[0]);
+      // 设置模型的位置、缩放、旋转等属性
+      modelMesh.position.set(0, 2, 15);
+      modelMesh.scale.set(2, 2, 2);
+      // modelMesh.rotation.set(0, Math.PI / 2, 0);
+
+      // 将模型网格添加到场景中
+      scene.add(modelMesh);
+      
+  });
+  const changeEnv=()=>{
+    if(currentEnv===5){
+      setCurrentEnv(0)
+    }
+    else{
+      let current=currentEnv
+      setCurrentEnv(current++)
+    }
+    console.log(111);
+  }
 // 在鼠标按下时触发
 function onMouseDown(event) {
   const mouse = new THREE.Vector2(
@@ -173,9 +226,10 @@ function onMouseUp() {
 }
 
 // 添加鼠标事件监听器
-window.addEventListener("mousedown", onMouseDown, false);
-window.addEventListener("mousemove", onMouseMove, false);
-window.addEventListener("mouseup", onMouseUp, false);
+// window.addEventListener("mousedown", onMouseDown, false);
+// window.addEventListener("mousemove", onMouseMove, false);
+// window.addEventListener("mouseup", onMouseUp, false);
+
 // 鼠标点击事件
 function onMouseClick(event) {
   // 根据屏幕坐标计算鼠标点击位置
@@ -190,7 +244,7 @@ function onMouseClick(event) {
   // 如果有相交的对象
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
-    console.log(intersects);
+    console.log(clickedObject);
 
     // 检查被点击的对象的名称
     if (clickedObject.name === "ball1") {
@@ -230,7 +284,10 @@ window.addEventListener("resize", () => {
   });
   return (
     <>
-      <div id="threeDemo" style={{position: "absolute"}} />
+      <div id="threeDemo" style={{position: "absolute"}}>
+      </div>
+      <div className="change" style={{'position':'absolute'}} onClick={()=>changeEnv()}>切换场景</div>
+
       <Modal visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
         <Luck />
       </Modal>
