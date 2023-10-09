@@ -1,23 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+// import './App.css';
+import React from "react";
+import { Route, Routes,Link, } from 'react-router-dom';
+import { lazy } from 'react';
 
+const Vr = lazy(() => import('./VR/index.tsx')); 
+const Page1 = lazy(() => import('./pages/page1/index.tsx')); 
+// import {Vr} from './VR/index.tsx'
+// import Page1 from './pages/page1/index.tsx'
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+         <Link to="/Page1" key={1}> 11121 </Link>
+         <Link to="/Page2" key={2}> ererer</Link>
+
+            {/* 注册路由 */}
+      <Routes>
+        <Route path="/Page1" key={1} element={<Vr />} />
+        <Route path="/Page2" key={2} element={<Page1 />} />
+        {/* <Redirect to="/Page1" /> */}
+      </Routes>
     </div>
   );
 }

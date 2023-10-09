@@ -70,7 +70,7 @@ const Luck=()=>{
     const stop=()=>{ 
         if(time<0)        
         clearInterval(timer)
-        console.log(position);
+
     }
 
     const start=(id)=>{

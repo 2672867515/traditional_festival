@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Button, Modal, Tooltip, message } from "antd";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import * as THREE from "three";
@@ -8,7 +8,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
  //导入hdr图像加载器
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rgbe加载器
 import Luck from '../praise/index.tsx'
-import './index.module.less'
+import './vr3.less'
+import { LeftCircleOutlined,RightCircleOutlined } from '@ant-design/icons';
 
 const Vr=()=>{
    // 1、创建场景
@@ -29,7 +30,12 @@ const Vr=()=>{
     const controls = new OrbitControls(camera, renderer.domElement);
     // 加载hdr环境图
     const rgbeLoader = new RGBELoader();
-
+    // 灯光 环境光
+    let light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+    // 直线光源
+    let directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    
+    const [messageApi, contextHolder] = message.useMessage();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEnv,setCurrentEnv]=useState(0)
     const [envArr, setEnvArr] = useState([
@@ -45,34 +51,15 @@ const Vr=()=>{
     render()
   },[])
   useEffect(()=>{
-    loadEnv(envArr[currentEnv])
+    removeLight()
     init()
     render()
-    
   },[currentEnv])
-  // 造球
-  const  createBox=(pos, radius, color,name)=> {
-    const geometry = new THREE.IcosahedronBufferGeometry( radius, 10 );
-    const object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({color: 0x808080,transparent: false, side: THREE.DoubleSide }) );
-    object.name = name
-    object.material.color.r = color[0] / 255;
-    object.material.color.g = color[1] / 255;
-    object.material.color.b = color[2] / 255;
-    object.material.opacity = 1;
-    object.position.x = pos.x;
-    object.position.y = pos.y;
-    object.position.z = pos.z;
-    object.shapeType = 'ball';
-    return object;
-  }
-  const ball1 = createBox({x:5,y:15,z:3},  3, [25,100,50],"ball1");
-  let ball2 = createBox({x:3,y:15,z:5},  3, [125,10,90],"ball2");
-  let ball3 = createBox({x:3,y:15,z:7},  3, [50,60,210],"ball3");
 
   // 加载环境
   const loadEnv=(url)=>{
     // 删除原有的场景
-    if(document.getElementById("threeDemo").firstChild){
+    if(document.getElementById("threeDemo")!.firstChild){
       document.getElementById("threeDemo")!.removeChild( document.getElementById("threeDemo").firstChild)
     }
     //资源较大，使用异步加载
@@ -92,17 +79,25 @@ const Vr=()=>{
 
   });
   }
+  // 添加光源
+  const addLight=()=>{
+    // 灯光 环境光
+    scene.add(light);
+    //直线光源
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
+  }
+  //删除光源
+  const removeLight=()=>{
+    // 灯光 环境光
+    scene.remove(light);
+    //直线光源
+    scene.remove(directionalLight);
+  }
   const init=()=>{
     // 加载环境
     loadEnv(envArr[currentEnv])
-    // 灯光 环境光
-    const light = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
-    scene.add(light);
-    //直线光源
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(10, 10, 10);
-    scene.add(directionalLight);
-    
+    addLight()
     scene.add(ball1);
     scene.add(ball2);
     scene.add(ball3);
@@ -118,6 +113,25 @@ const Vr=()=>{
     // 每帧重新走render渲染
     requestAnimationFrame(render)
   }
+ // 造球
+  const  createBox=(pos, radius, color,name)=> {
+    const geometry = new THREE.IcosahedronBufferGeometry( radius, 10 );
+    const object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({color: 0x808080,transparent: false, side: THREE.DoubleSide }) );
+    object.name = name
+    object.material.color.r = color[0] / 255;
+    object.material.color.g = color[1] / 255;
+    object.material.color.b = color[2] / 255;
+    object.material.opacity = 1;
+    object.position.x = pos.x;
+    object.position.y = pos.y;
+    object.position.z = pos.z;
+    object.shapeType = 'ball';
+    return object;
+  }
+  const ball1 = createBox({x:5,y:15,z:3},  3, [25,100,50],"ball1");
+  let ball2 = createBox({x:3,y:15,z:5},  3, [125,10,90],"ball2");
+  let ball3 = createBox({x:3,y:15,z:7},  3, [50,60,210],"ball3");
+
   // 使用射线（ray）来代表从摄像机（或其他点）发出的一条线。
   // Raycaster 允许我们检测这条射线与场景中的物体是否相交
   // 并且可以获取到交点的信息。
@@ -173,15 +187,27 @@ const Vr=()=>{
       scene.add(modelMesh);
       
   });
-  const changeEnv=()=>{
-    if(currentEnv===5){
-      setCurrentEnv(0)
-      // loadEnv(envArr[0])
+
+  //切换环境 
+  const preEnv=()=>{
+    if(currentEnv!==0){
+      let current=currentEnv-1
+      setCurrentEnv(current)
+    }else{
+      console.log(111);
+      
+      messageApi.info('sdssd');
     }
-    else{
+  }
+  const nextEnv=()=>{
+    if(currentEnv!==5){
       let current=currentEnv+1
       setCurrentEnv(current)
-      // loadEnv(envArr[current])
+    }else{
+      messageApi.open({
+        type: 'warning',
+        content: '没了',
+      });
     }
   }
 // 在鼠标按下时触发
@@ -296,7 +322,14 @@ window.addEventListener("resize", () => {
     <>
       <div id="threeDemo" style={{position: "absolute"}}>
       </div>
-      <div className="change" style={{'position':'absolute'}} onClick={()=>changeEnv()}>切换场景</div>
+      <div className="operation">
+      <Tooltip title="上一个场景">
+        <Button type="dashed" shape="circle" icon={<LeftCircleOutlined />} onClick={()=>preEnv()} />
+      </Tooltip>
+      <Tooltip title="下一个场景">
+        <Button type="dashed" shape="circle" icon={<RightCircleOutlined />} onClick={()=>nextEnv()} />
+      </Tooltip>
+      </div>
 
       <Modal visible={isModalOpen} onOk={()=>setIsModalOpen(false)} onCancel={()=>setIsModalOpen(false)}>
         <Luck />
@@ -305,4 +338,4 @@ window.addEventListener("resize", () => {
 
   )
 }
-export  {Vr}
+export default Vr

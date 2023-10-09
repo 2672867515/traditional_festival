@@ -7,17 +7,20 @@
  * @LastEditors: sj
  * @LastEditTime: 2022-10-19 14:59:31
  */
-import React from 'react';
+import React,{ Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-// import App from './App';
-import { Vr } from './VR/VR3.tsx'
+import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+import { BrowserRouter } from 'react-router-dom';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Vr />
+    <Suspense fallback={<h1>laoding...</h1>}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Suspense>
   </React.StrictMode>
 );
 
