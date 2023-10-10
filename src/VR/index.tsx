@@ -9,9 +9,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";//rgbe加载器
 import Luck from '../praise/index.tsx'
 import './vr3.less'
-import { LeftCircleOutlined,RightCircleOutlined } from '@ant-design/icons';
+import { LeftCircleOutlined,RightCircleOutlined,RightSquareOutlined } from '@ant-design/icons';
 
-const Vr=()=>{
+const Vr=(props)=>{
    // 1、创建场景
    const scene = new THREE.Scene();
    // 2、创建相机
@@ -196,7 +196,10 @@ const Vr=()=>{
     }else{
       console.log(111);
       
-      messageApi.info('sdssd');
+      messageApi.open({
+        type: 'warning',
+        content: '没了',
+      });
     }
   }
   const nextEnv=()=>{
@@ -209,6 +212,9 @@ const Vr=()=>{
         content: '没了',
       });
     }
+  }
+  const next=()=>{
+    props.history.push('/Page2')
   }
 // 在鼠标按下时触发
 // function onMouseDown(event) {
@@ -328,6 +334,9 @@ window.addEventListener("resize", () => {
       </Tooltip>
       <Tooltip title="下一个场景">
         <Button type="dashed" shape="circle" icon={<RightCircleOutlined />} onClick={()=>nextEnv()} />
+      </Tooltip>
+      <Tooltip title="跳">
+        <Button type="dashed" shape="circle" icon={<RightSquareOutlined />} onClick={()=>next()} />
       </Tooltip>
       </div>
 
